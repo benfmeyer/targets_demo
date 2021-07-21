@@ -4,6 +4,7 @@ subtitle: "reproducible, make-like workflows in R"
 date: '`r Sys.Date()`'
 output:
   xaringan::moon_reader:
+    self_contained: true
     css: ['xaringan-themer.css', 'extra.css']
     nature:
       slideNumberFormat: "%current%"
@@ -11,7 +12,7 @@ output:
       highlightLines: true
       ratio: 16:9
       countIncrementalSlides: true
-      self_contained: true
+   
 ---
 
 ```{r setup, include=FALSE}
