@@ -1,0 +1,8 @@
+.hljs-github .hljs {
+    background: #dad7cb;
+}
+
+.hljs-github .hljs-keyword, .hljs-github .hljs-selector-tag, .hljs-github .hljs-subst {
+    color: #005293;
+    font-weight: bold;
+}

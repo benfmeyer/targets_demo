@@ -1,0 +1,39 @@
+---
+title: "slides"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(raster)
+library(tidyverse)
+library(lubridate)
+```
+
+## Read data
+
+To examine the impact of increasingly dry summers on European beech forests, we want to take a look at yearly NPP as modeled by LPJ-GUESS in the Franconia region of Bavaria.
+
+```{r read_data, echo=FALSE}
+tar_load(npp_raw)
+head(npp_raw)
+```
+
+## Cropping to region of interest
+
+We only want to look at NPP in Franconia so we use crop the raw LPJ-GUESS output to the desired region using a shapefile of Bavarian counties.
+
+```{r wrangle_data, echo=FALSE}
+tar_load(shp_franconia)
+shp_franconia
+```
+
+For each of the three counties that comprise Franconia we now have the corresponding coordinates
+
+## Plotting our results
+
+```{r, npp_plot, echo=FALSE}
+tar_load(npp_plot)
+npp_plot
+```
+
