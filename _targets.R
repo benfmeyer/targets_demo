@@ -51,8 +51,5 @@ list(
        npp_report,
        "doc/npp_report.Rmd"
    )
-
-
-   do_something(input1, input2)
    
 )
