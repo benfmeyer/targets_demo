@@ -3,7 +3,4 @@
 .RData
 .Ruserdata
 _targets/
-targets_pres_files/
-targets_pres_cache/
-npp_report_files/
-npp_report_cache/
+index_files/
