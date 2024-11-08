@@ -1,6 +1,6 @@
 ---
-title: "{targets}"
-subtitle: "reproducible, make-like workflows in R"
+title: "Workflow Management Systems"
+subtitle: "reproducible workflows in R, Python, and beyond"
 date: '`r Sys.Date()`'
 output:
   xaringan::moon_reader:
@@ -79,7 +79,6 @@ knitr::include_graphics("img/Sisyphus-Overcoming-Silhouette.svg")
 - Interactive session pollutes workspace
 - Less than reproducible
 
-
 .pull-left[.can-edit[
 ```{r import_data, eval=FALSE}
 ## Script to import the data
@@ -126,9 +125,9 @@ source("build_model.R")
 
 ---
 
-## R Markdown
+## Notebooks
 
-- Notebook type workflow (_see past presentations by Christian and Konstantin on Trello_)
+- RMarkdown, Quarto, Jupyter, etc.
 
 - Offers some solutions: caching, forces linear structure, intertwined documentation
 
@@ -141,16 +140,55 @@ knitr::include_graphics("img/markdown_example.png")
 ##**Does not always scale well!**
 ]
 
+---
+class:center middle
+background-color:#0065BD
 
+<h1 style=color:#FFFFFF> Workflow Management Systems </h1>
+
+---
+
+## What are they?
+
+--
+
+**In general**
+--
+.bg-near-white.b--dark-blue.ba.bw1.br2[
+>**Infrastructure designed to facilitate organization, execution, and monitoring of a set of variably interdependent tasks**
+]
+--  
+
+**In this case**
+
+--
+.bg-near-white.b--dark-blue.ba.bw1.br2[
+>**Software to facilitate automated, reproducible, sustainable, and scalable data analysis processes**
+]
+
+---
+## How do they work?
+
+- workflows are decomposed into single steps
+  - often function based
+
+- each step generally takes an input and creates an output
+  - each step has a singular task without side-effects
+
+- dependencies between steps are monitored
+  - usually as a directed acyclic graph
+  - unidirectional
+
+- status of each step is monitored
+  - steps are only re-run if changes are detected
+  - including upstream changes
+
+**The software takes care of the overhead**
 
 ---
 class:center middle
-
-# {targets}
---
-
-
-<a href="url">https://docs.ropensci.org/targets/</a>
+background-color:#0065BD
+<h1 style=color:#FFFFFF><a href="https://docs.ropensci.org/targets/">.white[{targets}]</a></h1>
 
 
 ---
@@ -349,10 +387,11 @@ tar_target(
 
 ---
 
-## What about R Markdown
+## What about R Markdown and Quarto
 
 - still valuable for communicating results
 - `tar_render()` provides integration for .Rmd documents
+  - `tar_quarto()` for Quarto
 - scaling and caching is handled by targets 
 - code is largely isolated from markdown document to reduce clutter
   - only the last steps are done within markdown (i.E. plotting or simply loading targets)
@@ -368,13 +407,9 @@ tar_target(
        npp_by_county,
        summarize_npp(npp_franconia)
    ),
-   
-   tar_target(
-       npp_plot,
-       make_npp_plot(npp_by_county)
-   ),
-
-tar_render(slides, "doc/slides.Rmd")
+  ...
+   tar_render(slides, "doc/slides.Rmd")
+   tar_quarto(slides, "doc/slides.qmd")
 
 ```
 ]
@@ -406,3 +441,210 @@ Will Landau:
 
 *Straight from the source; Will Landau is the author of targets*
 
+---
+class:center middle
+background-color:#0065BD
+
+<h1 style=color:#FFFFFF><a href="https://snakemake.github.io/"> .white[snakemake]</a></h1>
+
+---
+
+## What is snakemake?
+
+.bg-near-white.b--dark-blue.ba.bw1.br2[
+>The Snakemake workflow management system is a tool to create **reproducible and scalable data analyses**. Workflows are described via a **human readable, Python based language**. They can be seamlessly scaled to server, cluster, grid and cloud environments, **without the need to modify** the workflow definition. Finally, Snakemake **workflows can entail a description of required software**, which will be automatically deployed to any execution environment.¹
+]
+
+### Key concepts
+
+- workflows are decomposed into rules
+  - instruction how to create a set of output file from a set of input files
+- wildcards can be used to generalize
+- software dependencies can be managed via e.g. conda
+- not tied to a specific language
+  - steps can call scripts do work
+
+.footnote[[1] https://snakemake.readthedocs.io/en/stable/]
+
+---
+
+## Getting started
+
+.panelset[.panel[.panel-name[Install and set up]
+.pull-left[
+- a file (`snakefile`) detailing the rules is required 
+- the rest of the file structure is largely up to the user
+- Snakemake authors suggest using VSCode since it supports syntax highlighting for snakemake
+]
+
+.pull-right[.can-edit[
+```{bash, eval = FALSE}
+├── snakefile
+├── scripts/
+├──── script1.R
+├──── script2.py 
+├── data/
+└──── raw_data.csv
+```
+]]
+
+```{bash, eval=FALSE}
+### In terminal or terminal integrated in your favorite IDE
+conda create -c conda-forge -c bioconda -n snakemake snakemake 
+conda activate snakemake 
+snakemake --help
+```
+
+]
+.panel[.panel-name[Snakefile]
+.can-edit[
+```{bash example, eval=FALSE}
+
+rule clean_data:
+    input:
+        "data/raw_data.csv",
+    output:
+        "data/clean_data.csv"
+    script:
+        "script1.R"
+
+rule visualize_data:
+    input:
+        "data/clean_data.csv",
+    output:
+        "plots/plot1.svg"
+    script:
+        "script2.py"
+
+```
+]
+.can-edit[
+```{bash execute_snake, eval=FALSE}
+snakemake 
+```
+]
+]]
+
+---
+
+## Where to start?
+
+**...and what to keep where**
+
+--
+
+
+.pull-left.b--dark-blue.ba.bw1.br2[
+- use the snakefile script as a high-level plan for the analysis workflow
+  - each rule executes a single script or command
+  - each important intermediate step becomes a rule
+  - isolate computationally costly steps
+
+```{bash snfl, eval=FALSE}
+
+rule EU25_DEM_WGS84:
+    input:
+        "eu_dem_v11_E40N20.nc"
+    output:
+        "eu_dem_v11_E40N20_WGS84.nc"
+    script:
+        "dem_to_WGS84.R"
+```
+]
+
+--
+.pull-right.b--dark-blue.ba.bw1.br2[
+- functions are kept in separate files away from the snakefile script
+  - functions do the heavy lifting
+  - matching function/script names and rule names creates a tangible link between the abstracted plan and the actual code
+
+```{r fun2, eval=FALSE}
+  gdalUtils::gdalwarp(
+    snakemake@input[[1]], "tmp_file.nc",
+    t_srs = "EPSG:4326"
+  )
+  gdalUtils::gdal_translate(
+    "tmp_file.nc", snakemake@output[[1]], 
+    of = "netCDF"
+  )
+}
+```
+]
+
+--- 
+
+## Why even bother?
+
+---
+
+## How it works
+
+**1. Run the pipeline**
+
+.blue[*`snakemake -n`*]
+  - dry-run
+  - which rules will be run and how long will it take?
+
+.blue[*`snakemake`*]
+  - run all outdated rules
+  
+**2. Load outputs to inspect**
+
+  - all outputs are files
+  - read, view, etc. like regular files
+  
+**3. Visualize pipeline**
+
+  .blue[*`snakemake --dag | dot -Tsvg > dag.svg`*]
+  
+  - returns a dependency graph
+  - for clarity in large pipelines you can specify individual steps
+
+**4. Rinse and repeat**
+
+---
+
+## What is the right tool for you?
+
+**targets**
+- your preferred language is R
+- inputs to your analyses are not part of your pipeline
+  - observational data
+  - data from 3rd parties
+- you are tied to RMarkdown
+
+**snakemake**
+- you either:
+  - do not use R
+  - want to use multiple languages
+- part of your pipeline includes running external models
+  - e.g. LPJ-GUESS
+- you want to include automatic downloads or similar tasks
+
+---
+
+## Further reading and useful links
+
+- **https://snakemake.readthedocs.io/en/stable/**
+- **https://snakemake.readthedocs.io/en/stable/tutorial/tutorial.html#tutorial**
+
+*Official, extensive documentation including a tutorial*
+
+- **https://f1000research.com/articles/10-33/v2**
+
+*Peer-reviewed rolling paper*
+
+- **https://snakemake.github.io/snakemake-workflow-catalog/**
+
+*Catalog of fully developed real-world example following best practices*
+
+---
+
+
+## What's next?
+
+1. Pick a project that you are working on
+
+2. Start converting to targets/snakemake
+
+3. In the next session we will can troubleshoot, debug, and more
