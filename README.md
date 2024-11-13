@@ -5,3 +5,4 @@ The example workflow is located in the "example" folder. "quick_mess_example.R" 
 All data needed to run this workflow is included in the repo. 
 
 To run the targets pipeline simply open the top level directory "targets_demo" in your favorite IDE (RStudio, VSCode, DataSpell, etc.). Then execute `tar_make(script = "example/_targets.R")` in the R console. 
+Once the pipeline has run you can access individual targets using `tar_load(target_name)`. 
